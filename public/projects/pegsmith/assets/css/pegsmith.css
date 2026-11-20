@@ -1,0 +1,568 @@
+/* =========================================================================
+   Pegsmith — peg-light art designer
+   -------------------------------------------------------------------------
+   An app page: it takes the site chrome (strip + crumbs + footer) and
+   nothing else, because its own editor fills the viewport. Layout is a
+   three-column shell under the chrome — tool rail, board, panel — that
+   collapses to a stacked sheet on narrow screens.
+
+   Everything here is prefixed `ps-`. The `pw-` tokens come from
+   /assets/site/chrome.css (the shared page chrome) and are read, never redefined, except the two
+   local aliases below.
+   ========================================================================= */
+
+:root {
+  --ps-rail: 3.25rem;
+  --ps-panel: 20.5rem;
+  --ps-surface: #0e0f11;
+  --ps-surface-2: #16181c;
+  --ps-surface-3: #1e2126;
+  --ps-line: rgba(242, 237, 225, 0.11);
+  --ps-line-soft: rgba(242, 237, 225, 0.06);
+  --ps-text: #e8e4da;
+  --ps-text-dim: #9a958a;
+  --ps-text-faint: #6a655d;
+  --ps-radius: 6px;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--pw-void, #050505);
+  color: var(--ps-text);
+  font-family: var(--pw-body, system-ui, sans-serif);
+  font-size: 14px;
+  overflow: hidden;               /* the board pans; the page does not */
+  overscroll-behavior: none;
+}
+
+/* ------------------------------------------------------------------ shell */
+
+.ps-shell {
+  position: fixed;
+  inset: var(--pw-chrome-h, 4.6rem) 0 0 0;
+  display: grid;
+  grid-template-columns: var(--ps-rail) 1fr var(--ps-panel);
+  background: var(--ps-surface);
+}
+
+/* ------------------------------------------------------------------- rail */
+
+.ps-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 0;
+  background: var(--ps-surface-2);
+  border-right: 1px solid var(--ps-line);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.ps-rail::-webkit-scrollbar { display: none; }
+
+.ps-tool {
+  position: relative;
+  width: 2.35rem;
+  height: 2.35rem;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--ps-radius);
+  background: transparent;
+  color: var(--ps-text-dim);
+  cursor: pointer;
+  transition: background 120ms, color 120ms, border-color 120ms;
+}
+.ps-tool:hover { background: var(--ps-surface-3); color: var(--ps-text); }
+.ps-tool[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--pw-brass, #c9a24b) 16%, transparent);
+  border-color: var(--pw-brass-dim, #6b5726);
+  color: var(--pw-brass-bright, #e8c874);
+}
+.ps-tool svg { width: 19px; height: 19px; }
+
+.ps-rail__sep {
+  height: 1px;
+  margin: 7px 0.6rem;
+  background: var(--ps-line);
+}
+
+/* Tooltips. Rendered from the button's own label so there is one source of
+   truth for what a tool is called and the keyboard hint travels with it. */
+.ps-tool::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 4px 8px;
+  border: 1px solid var(--ps-line);
+  border-radius: 4px;
+  background: #000;
+  color: var(--ps-text);
+  font-family: var(--pw-mono, monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 110ms;
+  z-index: 30;
+}
+.ps-tool:hover::after { opacity: 1; }
+
+/* ------------------------------------------------------------------ board */
+
+.ps-board {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 40%, #17191d 0%, #0a0b0c 70%);
+  touch-action: none;
+}
+
+.ps-board canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: crosshair;
+}
+.ps-board[data-panning="1"] canvas { cursor: grabbing; }
+
+/* Floating read-out, bottom-left of the board. */
+.ps-hud {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 5px 10px;
+  border: 1px solid var(--ps-line);
+  border-radius: 999px;
+  background: rgba(6, 7, 8, 0.82);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  font-family: var(--pw-mono, monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  color: var(--ps-text-dim);
+  pointer-events: none;
+}
+.ps-hud b { color: var(--ps-text); font-weight: 600; }
+
+.ps-zoom {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  gap: 4px;
+}
+.ps-zoom button {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--ps-line);
+  border-radius: var(--ps-radius);
+  background: rgba(6, 7, 8, 0.82);
+  color: var(--ps-text-dim);
+  font-family: var(--pw-mono, monospace);
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+.ps-zoom button:hover { color: var(--ps-text); border-color: var(--pw-brass-dim, #6b5726); }
+
+/* Drop target, shown only while a file is dragged over the window. */
+.ps-drop {
+  position: absolute;
+  inset: 0;
+  display: none;
+  place-items: center;
+  background: rgba(5, 6, 7, 0.86);
+  border: 2px dashed var(--pw-brass, #c9a24b);
+  color: var(--pw-brass-bright, #e8c874);
+  font-family: var(--pw-mono, monospace);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  z-index: 20;
+}
+.ps-board[data-drop="1"] .ps-drop { display: grid; }
+
+/* ------------------------------------------------------------------ panel */
+
+.ps-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--ps-surface-2);
+  border-left: 1px solid var(--ps-line);
+}
+
+.ps-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-bottom: 1px solid var(--ps-line);
+  flex: 0 0 auto;
+}
+.ps-tabs button {
+  padding: 0.7rem 0.2rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--ps-text-faint);
+  font-family: var(--pw-mono, monospace);
+  font-size: 0.6rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.ps-tabs button:hover { color: var(--ps-text-dim); }
+.ps-tabs button[aria-selected="true"] {
+  color: var(--pw-brass-bright, #e8c874);
+  border-bottom-color: var(--pw-brass, #c9a24b);
+  background: color-mix(in srgb, var(--pw-brass, #c9a24b) 8%, transparent);
+}
+
+.ps-panes { flex: 1 1 auto; overflow-y: auto; }
+.ps-pane { display: none; padding: 0.9rem 1rem 2rem; }
+.ps-pane[data-open="1"] { display: block; }
+
+.ps-group { margin-bottom: 1.4rem; }
+.ps-group__title {
+  margin: 0 0 0.55rem;
+  font-family: var(--pw-mono, monospace);
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ps-text-faint);
+}
+.ps-note {
+  margin: 0.5rem 0 0;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  color: var(--ps-text-faint);
+}
+.ps-note strong { color: var(--ps-text-dim); font-weight: 600; }
+
+/* ---- form atoms ---- */
+
+.ps-row { display: flex; gap: 8px; align-items: center; }
+.ps-row + .ps-row { margin-top: 8px; }
+.ps-row--split { display: grid; grid-template-columns: 1fr 1fr; }
+
+.ps-field { display: block; margin-bottom: 0.7rem; }
+.ps-field__label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+  font-family: var(--pw-mono, monospace);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ps-text-dim);
+}
+.ps-field__value { color: var(--pw-brass-bright, #e8c874); }
+
+input[type="number"], input[type="text"], select {
+  width: 100%;
+  padding: 0.42rem 0.55rem;
+  border: 1px solid var(--ps-line);
+  border-radius: var(--ps-radius);
+  background: var(--ps-surface);
+  color: var(--ps-text);
+  font-family: var(--pw-mono, monospace);
+  font-size: 0.75rem;
+}
+input[type="number"]:focus, input[type="text"]:focus, select:focus {
+  outline: 2px solid var(--pw-brass-dim, #6b5726);
+  outline-offset: 1px;
+  border-color: var(--pw-brass, #c9a24b);
+}
+
+input[type="range"] {
+  width: 100%;
+  height: 18px;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 3px; border-radius: 2px; background: var(--ps-surface-3);
+}
+input[type="range"]::-moz-range-track {
+  height: 3px; border-radius: 2px; background: var(--ps-surface-3);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px; height: 13px; margin-top: -5px;
+  border-radius: 50%;
+  background: var(--pw-brass, #c9a24b);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 13px; height: 13px; border: 0;
+  border-radius: 50%;
+  background: var(--pw-brass, #c9a24b);
+}
+
+.ps-btn {
+  flex: 1 1 auto;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--ps-line);
+  border-radius: var(--ps-radius);
+  background: var(--ps-surface-3);
+  color: var(--ps-text);
+  font-family: var(--pw-mono, monospace);
+  font-size: 0.63rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 120ms, color 120ms, background 120ms;
+}
+.ps-btn:hover { border-color: var(--pw-brass-dim, #6b5726); color: var(--pw-brass-bright, #e8c874); }
+.ps-btn--primary {
+  background: color-mix(in srgb, var(--pw-brass, #c9a24b) 20%, var(--ps-surface-3));
+  border-color: var(--pw-brass-dim, #6b5726);
+  color: var(--pw-brass-bright, #e8c874);
+}
+.ps-btn--primary:hover { background: color-mix(in srgb, var(--pw-brass, #c9a24b) 32%, var(--ps-surface-3)); }
+.ps-btn[aria-pressed="true"] {
+  border-color: var(--pw-brass, #c9a24b);
+  color: var(--pw-brass-bright, #e8c874);
+  background: color-mix(in srgb, var(--pw-brass, #c9a24b) 16%, var(--ps-surface-3));
+}
+.ps-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.ps-check {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 5px 0;
+  font-size: 0.75rem;
+  color: var(--ps-text-dim);
+  cursor: pointer;
+}
+.ps-check input { accent-color: var(--pw-brass, #c9a24b); }
+
+/* ---- palette ---- */
+
+.ps-palette {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+.ps-swatch {
+  position: relative;
+  aspect-ratio: 1;
+  border: 1px solid var(--ps-line);
+  border-radius: var(--ps-radius);
+  background: #000;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+.ps-swatch i {
+  display: block;
+  width: 58%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 10px 1px color-mix(in srgb, var(--c) 65%, transparent);
+}
+.ps-swatch[data-empty="1"] i {
+  background: transparent;
+  border: 1px dashed var(--ps-text-faint);
+  box-shadow: none;
+}
+.ps-swatch[aria-pressed="true"] {
+  border-color: var(--pw-brass-bright, #e8c874);
+  box-shadow: 0 0 0 1px var(--pw-brass-bright, #e8c874);
+}
+.ps-swatch small {
+  position: absolute;
+  right: 3px;
+  bottom: 1px;
+  font-family: var(--pw-mono, monospace);
+  font-size: 0.5rem;
+  color: var(--ps-text-faint);
+}
+
+/* ---- tally ---- */
+
+.ps-tally { display: flex; flex-direction: column; gap: 3px; }
+.ps-tally__row {
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  font-family: var(--pw-mono, monospace);
+  font-size: 0.68rem;
+  color: var(--ps-text-dim);
+}
+.ps-tally__dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--c) 60%, transparent);
+}
+.ps-tally__bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--ps-surface-3);
+  overflow: hidden;
+}
+.ps-tally__bar span { display: block; height: 100%; background: var(--c); }
+.ps-tally__n { color: var(--ps-text); }
+
+/* ---- image thumb ---- */
+
+.ps-thumb {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 1px dashed var(--ps-line);
+  border-radius: var(--ps-radius);
+  background: var(--ps-surface) center / contain no-repeat;
+  display: grid;
+  place-items: center;
+  color: var(--ps-text-faint);
+  font-family: var(--pw-mono, monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-align: center;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+.ps-thumb:hover { border-color: var(--pw-brass-dim, #6b5726); color: var(--ps-text-dim); }
+.ps-thumb[data-has="1"] { border-style: solid; }
+
+/* ---- toast ---- */
+
+.ps-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.6rem;
+  transform: translate(-50%, 1rem);
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--pw-brass-dim, #6b5726);
+  border-radius: 999px;
+  background: rgba(6, 7, 8, 0.94);
+  color: var(--pw-brass-bright, #e8c874);
+  font-family: var(--pw-mono, monospace);
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms, transform 180ms;
+  z-index: 200;
+}
+.ps-toast[data-show="1"] { opacity: 1; transform: translate(-50%, 0); }
+
+/* --------------------------------------------------------------- narrow */
+
+@media (max-width: 900px) {
+  .ps-shell {
+    grid-template-columns: var(--ps-rail) 1fr;
+    grid-template-rows: 1fr 45vh;
+  }
+  .ps-rail { grid-row: 1 / 3; }
+  .ps-panel {
+    grid-column: 2;
+    border-left: 0;
+    border-top: 1px solid var(--ps-line);
+  }
+}
+
+/* On screen the same markup is the print preview, shown inside a scroller
+   so the sheets can be checked before any paper is spent. */
+.ps-preview {
+  position: fixed;
+  inset: var(--pw-chrome-h, 4.6rem) 0 0 0;
+  z-index: 100;
+  display: none;
+  flex-direction: column;
+  background: #23252a;
+}
+.ps-preview[data-open="1"] { display: flex; }
+.ps-preview__bar {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  background: var(--ps-surface-2);
+  border-bottom: 1px solid var(--ps-line);
+}
+.ps-preview__bar h2 {
+  margin: 0 auto 0 0;
+  font-family: var(--pw-mono, monospace);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ps-text-dim);
+  font-weight: 500;
+}
+.ps-preview__bar .ps-btn { flex: 0 0 auto; }
+.ps-preview__scroll {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+.ps-preview .ps-sheet {
+  background: #fff;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.55);
+}
+.ps-preview .ps-sheet svg { display: block; }
+
+/* ========================================================================
+   PRINT
+   ------------------------------------------------------------------------
+   The sheet is built as SVG sized in millimetres, with a viewBox in the
+   same units. That is the whole trick: an SVG whose width is "203.2mm"
+   prints 203.2 mm wide at 100% scale, on any browser, without depending
+   on a CSS pixel ratio that browsers do not agree about. The peg pitch
+   therefore lands where the board's holes actually are.
+
+   @page has no margin because the sheet already carries its own — the
+   browser's default margin would otherwise shrink the artwork to fit and
+   silently break the scale. The margin box is drawn by the sheet itself.
+   ======================================================================== */
+
+@media print {
+  html, body { height: auto; overflow: visible; background: #fff; }
+  .ps-shell, .pw-strip, .pw-crumbs, .pw-footer, .ps-toast,
+  .pw-stage, .pw-motion, .ps-preview__bar { display: none !important; }
+
+  /* The preview IS the print document — same markup, same sheets, so what
+     you checked on screen is what comes out. Printing therefore means
+     un-fixing it and letting it flow, whether or not it was open. */
+  .ps-preview {
+    display: block !important;
+    position: static;
+    inset: auto;
+    background: #fff;
+  }
+  .ps-preview__scroll {
+    display: block;
+    overflow: visible;
+    padding: 0;
+    gap: 0;
+  }
+  .ps-sheet {
+    display: block;
+    box-shadow: none !important;
+    page-break-after: always;
+    break-after: page;
+  }
+  .ps-sheet:last-child { page-break-after: auto; break-after: auto; }
+}

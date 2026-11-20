@@ -1,0 +1,5 @@
+# Pegsmith
+# The page is index.php; the shared header, nav and scripts are small PHP includes under /includes/.
+DirectoryIndex index.php
+
+Options -Indexes

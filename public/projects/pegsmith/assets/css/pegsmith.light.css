@@ -1,0 +1,87 @@
+/* =========================================================================
+   LIGHT THEME companion, generated from:
+     projects/pegsmith/assets/css/pegsmith.css
+     projects/pegsmith/index.php
+   Regenerate it after changing the dark styles. Everything is scoped under
+   html[data-theme="light"], so this file does nothing in dark mode.
+   ========================================================================= */
+
+/* ---- from projects/pegsmith/assets/css/pegsmith.css ---- */
+html[data-theme="light"]{--ps-surface:#e7e2d7;--ps-surface-2:#e0dbd0;--ps-surface-3:#d8d4c9;--ps-line:rgba(26,23,18,0.11);--ps-line-soft:rgba(26,23,18,0.06);--ps-text:#1d1a15;--ps-text-dim:#4f4b45;--ps-text-faint:#7a766f}
+html[data-theme="light"] body{background:var(--pw-void, #efeadf);color:var(--ps-text)}
+html[data-theme="light"] .ps-shell{background:var(--ps-surface)}
+html[data-theme="light"] .ps-rail{background:var(--ps-surface-2);border-right:1px solid var(--ps-line)}
+html[data-theme="light"] .ps-tool{border:1px solid transparent;background:transparent;color:var(--ps-text-dim)}
+html[data-theme="light"] .ps-tool:hover{background:var(--ps-surface-3);color:var(--ps-text)}
+html[data-theme="light"] .ps-tool[aria-pressed="true"]{background:color-mix(in srgb, var(--pw-brass, #826627) 16%, transparent);border-color:var(--pw-brass-dim, #d9c594);color:var(--pw-brass-bright, #644d11)}
+html[data-theme="light"] .ps-rail__sep{background:var(--ps-line)}
+html[data-theme="light"] .ps-tool::after{border:1px solid var(--ps-line);background:#f3eee3;color:var(--ps-text)}
+html[data-theme="light"] .ps-board{background:radial-gradient(ellipse at 50% 40%, #dfdacf 0%, #eae5db 70%)}
+html[data-theme="light"] .ps-hud{border:1px solid var(--ps-line);background:rgba(238,233,222,0.82);color:var(--ps-text-dim)}
+html[data-theme="light"] .ps-hud b{color:var(--ps-text)}
+html[data-theme="light"] .ps-zoom button{border:1px solid var(--ps-line);background:rgba(238,233,222,0.82);color:var(--ps-text-dim)}
+html[data-theme="light"] .ps-zoom button:hover{color:var(--ps-text);border-color:var(--pw-brass-dim, #d9c594)}
+html[data-theme="light"] .ps-drop{background:rgba(238,233,222,0.86);border:2px dashed var(--pw-brass, #826627);color:var(--pw-brass-bright, #644d11)}
+html[data-theme="light"] .ps-panel{background:var(--ps-surface-2);border-left:1px solid var(--ps-line)}
+html[data-theme="light"] .ps-tabs{border-bottom:1px solid var(--ps-line)}
+html[data-theme="light"] .ps-tabs button{border:0;border-bottom:2px solid transparent;background:transparent;color:var(--ps-text-faint)}
+html[data-theme="light"] .ps-tabs button:hover{color:var(--ps-text-dim)}
+html[data-theme="light"] .ps-tabs button[aria-selected="true"]{color:var(--pw-brass-bright, #644d11);border-bottom-color:var(--pw-brass, #826627);background:color-mix(in srgb, var(--pw-brass, #826627) 8%, transparent)}
+html[data-theme="light"] .ps-group__title{color:var(--ps-text-faint)}
+html[data-theme="light"] .ps-note{color:var(--ps-text-faint)}
+html[data-theme="light"] .ps-note strong{color:var(--ps-text-dim)}
+html[data-theme="light"] .ps-field__label{color:var(--ps-text-dim)}
+html[data-theme="light"] .ps-field__value{color:var(--pw-brass-bright, #644d11)}
+html[data-theme="light"] input[type="number"],
+html[data-theme="light"] input[type="text"],
+html[data-theme="light"] select{border:1px solid var(--ps-line);background:var(--ps-surface);color:var(--ps-text)}
+html[data-theme="light"] input[type="number"]:focus,
+html[data-theme="light"] input[type="text"]:focus,
+html[data-theme="light"] select:focus{outline:2px solid var(--pw-brass-dim, #d9c594);border-color:var(--pw-brass, #826627)}
+html[data-theme="light"] input[type="range"]{background:transparent}
+html[data-theme="light"] input[type="range"]::-webkit-slider-runnable-track{background:var(--ps-surface-3)}
+html[data-theme="light"] input[type="range"]::-moz-range-track{background:var(--ps-surface-3)}
+html[data-theme="light"] input[type="range"]::-webkit-slider-thumb{background:var(--pw-brass, #826627)}
+html[data-theme="light"] input[type="range"]::-moz-range-thumb{border:0;background:var(--pw-brass, #826627)}
+html[data-theme="light"] .ps-btn{border:1px solid var(--ps-line);background:var(--ps-surface-3);color:var(--ps-text)}
+html[data-theme="light"] .ps-btn:hover{border-color:var(--pw-brass-dim, #d9c594);color:var(--pw-brass-bright, #644d11)}
+html[data-theme="light"] .ps-btn--primary{background:color-mix(in srgb, var(--pw-brass, #826627) 20%, var(--ps-surface-3));border-color:var(--pw-brass-dim, #d9c594);color:var(--pw-brass-bright, #644d11)}
+html[data-theme="light"] .ps-btn--primary:hover{background:color-mix(in srgb, var(--pw-brass, #826627) 32%, var(--ps-surface-3))}
+html[data-theme="light"] .ps-btn[aria-pressed="true"]{border-color:var(--pw-brass, #826627);color:var(--pw-brass-bright, #644d11);background:color-mix(in srgb, var(--pw-brass, #826627) 16%, var(--ps-surface-3))}
+html[data-theme="light"] .ps-check{color:var(--ps-text-dim)}
+html[data-theme="light"] .ps-check input{accent-color:var(--pw-brass, #826627)}
+html[data-theme="light"] .ps-swatch{border:1px solid var(--ps-line);background:#f3eee3}
+html[data-theme="light"] .ps-swatch i{background:var(--c);box-shadow:0 0 10px 1px color-mix(in srgb, var(--c) 65%, transparent)}
+html[data-theme="light"] .ps-swatch[data-empty="1"] i{background:transparent;border:1px dashed var(--ps-text-faint);box-shadow:none}
+html[data-theme="light"] .ps-swatch[aria-pressed="true"]{border-color:var(--pw-brass-bright, #644d11);box-shadow:0 0 0 1px var(--pw-brass-bright, rgba(100,77,17,0.6))}
+html[data-theme="light"] .ps-swatch small{color:var(--ps-text-faint)}
+html[data-theme="light"] .ps-tally__row{color:var(--ps-text-dim)}
+html[data-theme="light"] .ps-tally__dot{background:var(--c);box-shadow:0 0 6px color-mix(in srgb, var(--c) 60%, transparent)}
+html[data-theme="light"] .ps-tally__bar{background:var(--ps-surface-3)}
+html[data-theme="light"] .ps-tally__bar span{background:var(--c)}
+html[data-theme="light"] .ps-tally__n{color:var(--ps-text)}
+html[data-theme="light"] .ps-thumb{border:1px dashed var(--ps-line);background:var(--ps-surface) center / contain no-repeat;color:var(--ps-text-faint)}
+html[data-theme="light"] .ps-thumb:hover{border-color:var(--pw-brass-dim, #d9c594);color:var(--ps-text-dim)}
+html[data-theme="light"] .ps-toast{border:1px solid var(--pw-brass-dim, #d9c594);background:rgba(238,233,222,0.94);color:var(--pw-brass-bright, #644d11)}
+@media (max-width: 900px){
+html[data-theme="light"] .ps-panel{border-left:0;border-top:1px solid var(--ps-line)}
+}
+html[data-theme="light"] .ps-preview{background:#d5d0c6}
+html[data-theme="light"] .ps-preview__bar{background:var(--ps-surface-2);border-bottom:1px solid var(--ps-line)}
+html[data-theme="light"] .ps-preview__bar h2{color:var(--ps-text-dim)}
+html[data-theme="light"] .ps-preview .ps-sheet{background:#16130e;box-shadow:0 10px 40px rgba(60,45,25,0.193)}
+@media print{
+html[data-theme="light"],
+html[data-theme="light"] body{background:#16130e}
+}
+@media print{
+html[data-theme="light"] .ps-preview{background:#16130e}
+}
+@media print{
+html[data-theme="light"] .ps-sheet{box-shadow:none !important}
+}
+
+/* ---- from projects/pegsmith/index.php ---- */
+
+
+/* ===================== hand-tuned ===================== */

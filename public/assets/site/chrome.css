@@ -1,0 +1,114 @@
+/* Stand-in for the site chrome this page was built against: the design tokens the page reads
+   (--pw-*), a fixed top strip, a footer and the light theme. Small on purpose; the tool's own
+   styles live in the page. */
+
+:root {
+  --pw-void: #050505;
+  --pw-void-2: #0c0c0d;
+  --pw-bone: #f2ede1;
+  --pw-bone-dim: #a39c8c;
+  --pw-bone-faint: #6c665c;
+  --pw-brass: #c9a24b;
+  --pw-brass-bright: #e8c874;
+  --pw-brass-dim: #6b5726;
+  --pw-rule: rgba(242, 237, 225, 0.14);
+  --pw-display: "Cinzel", "Times New Roman", serif;
+  --pw-body: "Archivo", "Space Grotesk", system-ui, sans-serif;
+  --pw-mono: "JetBrains Mono", ui-monospace, monospace;
+  --pw-strip-h: 2.65rem;
+  --pw-crumbs-h: 0rem;
+  --pw-chrome-h: calc(var(--pw-strip-h) + var(--pw-crumbs-h));
+}
+
+html[data-theme="light"] {
+  --pw-void: #ece7dc;
+  --pw-void-2: #e5e0d5;
+  --pw-bone: #1d1a15;
+  --pw-bone-dim: #5e5a53;
+  --pw-bone-faint: #8a857d;
+  --pw-brass: #1b7468;
+  --pw-brass-bright: #0b5147;
+  --pw-brass-dim: #a9efe8;
+  --pw-rule: rgba(29, 26, 21, 0.14);
+}
+
+.pw-accent-lumen {
+  --pw-brass: #2fd6c8;
+  --pw-brass-bright: #86f2e9;
+  --pw-brass-dim: #1a6660;
+  --pw-rule: rgba(47, 214, 200, 0.14);
+}
+html[data-theme="light"] .pw-accent-lumen {
+  --pw-brass: #167a72;
+  --pw-brass-bright: #0b5650;
+  --pw-brass-dim: #b7eee9;
+}
+
+body { margin: 0; }
+
+/* A page that opts into the stage gets the dark ground and room for the strip. */
+.pw-on-stage { background: var(--pw-void) !important; color: var(--pw-bone); padding-top: var(--pw-chrome-h); }
+.pw-stage {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(201, 162, 75, 0.10), transparent 55%),
+    radial-gradient(ellipse at 80% 100%, rgba(201, 162, 75, 0.06), transparent 50%),
+    var(--pw-void);
+}
+
+.pw-strip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  height: var(--pw-strip-h);
+  display: flex;
+  align-items: center;
+  gap: clamp(0.5rem, 2vw, 1.25rem);
+  padding: 0 clamp(0.75rem, 3vw, 2rem);
+  margin: 0;
+  background: rgba(5, 5, 5, 0.82);
+  border-bottom: 1px solid var(--pw-rule);
+  color: var(--pw-bone);
+  font: 500 0.72rem/1 var(--pw-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+html[data-theme="light"] .pw-strip { background: rgba(236, 231, 220, 0.88); }
+.pw-strip a { color: var(--pw-bone); text-decoration: none; }
+.pw-strip a:hover { color: var(--pw-brass-bright); }
+.pw-strip__home { font-family: var(--pw-display); font-weight: 600; letter-spacing: 0.14em; }
+.pw-strip__here { color: var(--pw-brass); }
+.pw-strip__spacer { flex: 1; }
+.pw-theme {
+  border: 1px solid var(--pw-rule);
+  background: transparent;
+  color: var(--pw-bone);
+  font: inherit;
+  padding: 0.3rem 0.6rem;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.pw-theme:hover { border-color: var(--pw-brass); color: var(--pw-brass-bright); }
+
+.pw-footer {
+  margin-top: clamp(3rem, 8vw, 6rem);
+  padding: clamp(1.25rem, 3vw, 2rem) clamp(1rem, 4vw, 3rem);
+  border-top: 1px solid var(--pw-rule);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  color: var(--pw-bone-dim);
+  font: 400 0.75rem/1.5 var(--pw-body);
+}
+.pw-footer a { color: var(--pw-bone-dim); }
+.pw-footer a:hover { color: var(--pw-brass-bright); }
+
+@media print { .pw-strip, .pw-footer, .pw-stage { display: none !important; } }
